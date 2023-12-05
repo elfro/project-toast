@@ -1,14 +1,24 @@
 import React from 'react';
 
 import Button from '../Button';
-
 import styles from './ToastPlayground.module.css';
+import { ToastContext } from '../ToastProvider';
 
 const VARIANT_OPTIONS = ['notice', 'warning', 'success', 'error'];
 
 function ToastPlayground() {
+  const { addToast } = React.useContext(ToastContext);
+
+  const [message, setMessage] = React.useState('');
+  const [variant, setVariant] = React.useState(VARIANT_OPTIONS[0]);
+
   return (
-    <div className={styles.wrapper}>
+    <form className={styles.wrapper} onSubmit={event => {
+      event.preventDefault();
+      addToast(variant, message);
+      setMessage('');
+      setVariant(VARIANT_OPTIONS[0]);
+    }}>
       <header>
         <img alt="Cute toast mascot" src="/toast.png" />
         <h1>Toast Playground</h1>
@@ -24,7 +34,15 @@ function ToastPlayground() {
             Message
           </label>
           <div className={styles.inputWrapper}>
-            <textarea id="message" className={styles.messageInput} />
+            <textarea
+                id="message"
+                value={message}
+                className={styles.messageInput}
+                required
+                onChange={event => {
+                  setMessage(event.target.value);
+                }}
+            />
           </div>
         </div>
 
@@ -33,17 +51,24 @@ function ToastPlayground() {
           <div
             className={`${styles.inputWrapper} ${styles.radioWrapper}`}
           >
-            <label htmlFor="variant-notice">
-              <input
-                id="variant-notice"
-                type="radio"
-                name="variant"
-                value="notice"
-              />
-              notice
-            </label>
-
-            {/* TODO Other Variant radio buttons here */}
+            {VARIANT_OPTIONS.map((option, index) => {
+              const id = `variant-${option}`;
+              return (
+                <label key={index} htmlFor={id}>
+                  <input
+                      id={id}
+                      type="radio"
+                      name="variant"
+                      required
+                      value={option}
+                      checked={option === variant}
+                      onChange={event => {
+                        setVariant(event.target.value)
+                      }}
+                  />
+                  {option}
+                </label>
+            )})}
           </div>
         </div>
 
@@ -56,7 +81,7 @@ function ToastPlayground() {
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
 
